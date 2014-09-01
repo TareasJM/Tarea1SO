@@ -24,8 +24,11 @@ int main (int argc, char const *argv[])
     { 
       //Obtiene el nombre completo del Archivo
       name_archive = ep->d_name;
-      size = fsize(name_archive)/8;
-      printf("%s = %d bytes \n", name_archive, size);
+
+      //Obtiene los bits/8 => bytes del archivo
+      size = fsize(ep->d_name)/8;
+      printf("%s = %d bytes \n", ep->d_name, size);
+
       //Separa el Nombre del Archivo y el Formato 
       strtok_r(name_archive,".",&format_archive);
       if(format_archive != NULL)
@@ -36,7 +39,7 @@ int main (int argc, char const *argv[])
         strcat(des,"/");
         strcat(des,format_archive);
         mkdir(des,0777);
-        printf("%s\n",format_archive);
+       
       }
     }
     (void) closedir (dp);
