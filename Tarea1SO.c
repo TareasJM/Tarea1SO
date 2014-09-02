@@ -4,29 +4,35 @@
 #include <string.h>
 #include <sys/stat.h>
 
-off_t fsize(const char *filename);
+off_t fsize(const char *fileName);
 
 int main (int argc, char const *argv[])
 { 
-  //Puntero al Directorio
+  //Puntero al Directorio y archivo
   DIR *dp;
   struct dirent *ep;
-  char *name_archive;
-  char *format_archive;
+  //Strings para nombres y extenciones
+  char *fileName;
+  char *fileExt;
   char dir[255];
-  strcpy(dir, argv[1]);
-  printf("%c\n", dir[strlen(argv[1])-1]);
 
   // Verificación de argumentos
   if (argc != 2)
   {
-    printf("Usage: ./main <Directory>\n");
+    printf("Usage: ./Tarea1SO <Directory>\n");
     return 0; //Si hay error, termina
   }
-  else if (dir[strlen(argv[1])-1] != '/')
+  else if (argv[1][strlen(argv[1])-1] != '/')
   {
-    strcat(dir, "/");
+    strcpy(dir, argv[1]);//->folder/
+    strcat(dir, "/");//-> Si el directorio no termina en /, lo agrega
   }
+  else
+  {
+    strcpy(dir, argv[1]);//->folder/
+  }
+
+  //Abre el directorio
   dp = opendir(dir);
 
   if (dp != NULL)
@@ -34,19 +40,23 @@ int main (int argc, char const *argv[])
     while (ep = readdir(dp))
     { 
       //Obtiene el nombre completo del Archivo
-      name_archive=(char *) malloc(sizeof(char)*256);
-      strcpy(name_archive, ep->d_name);
+      fileName=(char *) malloc(sizeof(char)*256);
+      strcpy(fileName, ep->d_name);
       //Separa el Nombre del Archivo y el Formato 
-      strtok_r(name_archive,".",&format_archive);
-      if(strcmp(format_archive, ""))
+      strtok_r(fileName,".",&fileExt);
+      if(strcmp(fileName, "") != 0 && strcmp(fileName, "..") != 0 && strcmp(fileName, ".") != 0)
       { 
+        if (strcmp(fileExt, "") == 0)
+        {
+          strcpy(fileExt, "Otros");
+        }
         // Crea y prepara Strins con las rutas
         char originalDir[256];
         char finalDir[256];
         strcpy(originalDir, dir);
         strcpy(finalDir, dir);
-        strcat(originalDir, ep->d_name);//->folder/filename (original file path)
-        strcat(finalDir,format_archive);//->folder/ext
+        strcat(originalDir, ep->d_name);//->folder/fileName (original file path)
+        strcat(finalDir,fileExt);//->folder/ext
         
         // crea folder/ext
         mkdir(finalDir,0777);
@@ -83,27 +93,27 @@ int main (int argc, char const *argv[])
         strcat(finalDir, ep->d_name);//->folder/ext/sizefolder/filname
 
         // Imprime en consola datos
-        printf("file :%s\n    -origin:%s\n    -destination:%s\n    -size:%d\n",ep->d_name, originalDir, finalDir, size);
-        // if (rename(originalDir, finalDir))
-        // {
-        //   perror( NULL );
-        // }
+        printf("file: %s\n     -name:%s\n     -ext:%s\n     -size:%d\n     -origin:%s\n     -destination:%s\n",ep->d_name, fileName, fileExt, size, originalDir, finalDir);
+        if (rename(originalDir, finalDir))
+        {
+          perror( NULL );
+        }
       }
-      free(name_archive);
+      free(fileName);
     }
     (void) closedir (dp);
   }
   else
-    perror ("Couldn't open the directory");
+    perror ("Directorio Inválido");
 
   return 0;
 }
 
-off_t fsize(const char *filename)
+off_t fsize(const char *fileName)
 {
     struct stat st; 
 
-    if (stat(filename, &st) == 0)
+    if (stat(fileName, &st) == 0)
         return st.st_size;
 
     return -1; 
