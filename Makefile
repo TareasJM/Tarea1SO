@@ -1,12 +1,2 @@
-SRC    = Tarea1SO.c
-OBJ    = $(SRC:.c=.o)
-
-CC      = gcc
-CFLAGS  = -Wall
-RM      = rm -f
-
-%.o: %.c
-	$(CC) $(CFLAGS) $*.c
-
-clean:
-	$(RM) $(OBJ)
+all: 
+	gcc -o Tarea1SO Tarea1SO.c
